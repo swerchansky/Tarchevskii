@@ -9,6 +9,7 @@ import android.os.Looper
 import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -34,6 +35,7 @@ class SearchActivity : AppCompatActivity() {
    private lateinit var searchText: EditText
    private lateinit var recycler: RecyclerView
    private lateinit var shimmer: ShimmerFrameLayout
+   private lateinit var backArrow: ImageButton
    private lateinit var filmServiceIntent: Intent
 
    private var isBound = false
@@ -100,6 +102,11 @@ class SearchActivity : AppCompatActivity() {
       searchText = findViewById(R.id.searchText)
       recycler = findViewById(R.id.searchList)
       shimmer = findViewById(R.id.shimmerLayout)
+      backArrow = findViewById(R.id.backArrow)
+
+      backArrow.setOnClickListener {
+         finish()
+      }
 
       searchText.addTextChangedListener {
          if (fullFilmList.isNotEmpty()) {
