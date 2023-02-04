@@ -15,6 +15,7 @@ import swerchansky.films.ConstantValues.NETWORK_FAILURE
 import swerchansky.films.ConstantValues.POPULAR_FRAGMENT_TAG
 import swerchansky.service.FilmService
 
+
 class MainActivity : AppCompatActivity() {
    companion object {
       const val TAG = "MainActivity"
@@ -83,6 +84,15 @@ class MainActivity : AppCompatActivity() {
          unbindService(boundServiceConnection)
       }
       LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver)
+   }
+
+   fun restart() {
+      if (filmsListReady) {
+         setFragment(popularFragment, POPULAR_FRAGMENT_TAG)
+         return
+      }
+      filmService?.getFilmsList()
+      setFragment(popularFragment, POPULAR_FRAGMENT_TAG)
    }
 
    private fun setFragment(fragment: Fragment, fragmentTag: String) {

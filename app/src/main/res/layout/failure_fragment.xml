@@ -69,7 +69,7 @@
         app:layout_constraintTop_toBottomOf="@id/noConnectionIcon" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/popularButton"
+        android:id="@+id/restartButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"

@@ -27,36 +27,7 @@ class FilmService : Service() {
 
    override fun onCreate() {
       super.onCreate()
-      scope.launch {
-         withContext(Dispatchers.IO) {
-            repeat(5) {
-               val result = kotlin.runCatching {
-                  networkHelper.getTopFilms(it + 1).execute()
-                     .body()?.films?.let { filmList -> films += filmList }
-               }
-               if (result.isFailure) {
-                  sendIntent(NETWORK_FAILURE)
-                  return@withContext
-               }
-            }
-            for (i in films.indices) {
-               val (filmPoster, filmPosterCode) =
-                  try {
-                     networkHelper.getPreviewImage(films[i].posterUrlPreview)
-                  } catch (e: Exception) {
-                     sendIntent(NETWORK_FAILURE)
-                     return@withContext
-                  }
-               if (filmPosterCode != 200) {
-                  sendIntent(NETWORK_FAILURE)
-                  return@withContext
-               }
-               films[i].posterImagePreview =
-                  filmPoster
-            }
-            sendIntent(FILM_LIST_READY)
-         }
-      }
+      getFilmsList()
    }
 
    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
@@ -90,6 +61,39 @@ class FilmService : Service() {
          return null
       }
       return filmDetails
+   }
+
+   fun getFilmsList() {
+      scope.launch {
+         withContext(Dispatchers.IO) {
+            repeat(5) {
+               val result = kotlin.runCatching {
+                  networkHelper.getTopFilms(it + 1).execute()
+                     .body()?.films?.let { filmList -> films += filmList }
+               }
+               if (result.isFailure) {
+                  sendIntent(NETWORK_FAILURE)
+                  return@withContext
+               }
+            }
+            for (i in films.indices) {
+               val (filmPoster, filmPosterCode) =
+                  try {
+                     networkHelper.getPreviewImage(films[i].posterUrlPreview)
+                  } catch (e: Exception) {
+                     sendIntent(NETWORK_FAILURE)
+                     return@withContext
+                  }
+               if (filmPosterCode != 200) {
+                  sendIntent(NETWORK_FAILURE)
+                  return@withContext
+               }
+               films[i].posterImagePreview =
+                  filmPoster
+            }
+            sendIntent(FILM_LIST_READY)
+         }
+      }
    }
 
    private fun sendIntent(type: Int, text: String = "") {
