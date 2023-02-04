@@ -11,4 +11,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="light_blue_white">#deefff</color>
     <color name="light_blue_teal">#0094ff</color>
+    <color name="shimmer">#dddddd</color>
 </resources>

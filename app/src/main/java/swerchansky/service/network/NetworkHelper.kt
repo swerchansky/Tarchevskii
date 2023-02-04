@@ -26,18 +26,18 @@ class NetworkHelper {
 
    fun getTopFilms(page: Int = 1) = retrofit.getTopFilms(page)
 
-   fun getPreviewImage(url: String): Bitmap {
+   fun getPreviewImage(url: String): Pair<Bitmap, Int> {
       val response = retrofit.getImage(url).execute()
       val bytes = response.body()!!.bytes()
-      return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+      return BitmapFactory.decodeByteArray(bytes, 0, bytes.size) to response.code()
    }
 
-   fun getFilmDetails(id: Int): FilmDetailsEntity {
+   fun getFilmDetails(id: Int): Triple<FilmDetailsEntity?, Int, Int> {
       val response = retrofit.getFilmDetails(id).execute()
       val filmDetails = response.body()!!
       val imageResponse = retrofit.getImage(filmDetails.posterUrl).execute()
       val bytes = imageResponse.body()!!.bytes()
       filmDetails.filmPoster = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-      return filmDetails
+      return Triple(filmDetails, response.code(), imageResponse.code())
    }
 }

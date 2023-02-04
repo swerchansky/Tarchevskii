@@ -1,14 +1,18 @@
 package swerchansky.films
 
-import android.content.ComponentName
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.os.Bundle
 import android.os.IBinder
 import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import swerchansky.films.ConstantValues.FAILURE_FRAGMENT_TAG
+import swerchansky.films.ConstantValues.FAVOURITE_FRAGMENT_TAG
+import swerchansky.films.ConstantValues.FILM_LIST_READY
+import swerchansky.films.ConstantValues.NETWORK_FAILURE
+import swerchansky.films.ConstantValues.POPULAR_FRAGMENT_TAG
 import swerchansky.service.FilmService
 
 class MainActivity : AppCompatActivity() {
@@ -22,7 +26,9 @@ class MainActivity : AppCompatActivity() {
    private lateinit var filmServiceIntent: Intent
    private val popularFragment = PopularFragment()
    private val favouriteFragment = FavouriteFragment()
+   private val failureFragment = FailureFragment()
    private var isBound = false
+   var filmsListReady = false
    var filmService: FilmService? = null
 
    private val boundServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -35,6 +41,19 @@ class MainActivity : AppCompatActivity() {
       override fun onServiceDisconnected(name: ComponentName) {
          isBound = false
          filmService = null
+      }
+   }
+
+   private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+      override fun onReceive(context: Context?, intent: Intent) {
+         when (intent.getIntExtra("type", -1)) {
+            NETWORK_FAILURE -> {
+               setFragment(failureFragment, FAILURE_FRAGMENT_TAG)
+            }
+            FILM_LIST_READY -> {
+               filmsListReady = true
+            }
+         }
       }
    }
 
@@ -54,23 +73,38 @@ class MainActivity : AppCompatActivity() {
       filmServiceIntent = Intent(this, FilmService::class.java)
       startService(filmServiceIntent)
       bindService(filmServiceIntent, boundServiceConnection, BIND_AUTO_CREATE)
+      LocalBroadcastManager.getInstance(this)
+         .registerReceiver(messageReceiver, IntentFilter(PopularFragment.FILM_SERVICE_TAG))
    }
 
-   private fun setFragment(fragment: Fragment) {
+   override fun onDestroy() {
+      super.onDestroy()
+      if (isBound) {
+         unbindService(boundServiceConnection)
+      }
+      LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver)
+   }
+
+   private fun setFragment(fragment: Fragment, fragmentTag: String) {
       val ft = supportFragmentManager.beginTransaction()
-      ft.replace(R.id.fragmentView, fragment)
+      ft.replace(R.id.fragmentView, fragment, fragmentTag)
       ft.commit()
    }
 
    private fun initFragments() {
-      setFragment(popularFragment)
+      setFragment(popularFragment, POPULAR_FRAGMENT_TAG)
 
       popularFragmentButton.setOnClickListener {
-         setFragment(popularFragment)
+         val myFragment: FailureFragment? =
+            supportFragmentManager.findFragmentByTag(FAILURE_FRAGMENT_TAG) as FailureFragment?
+         if (myFragment != null && myFragment.isVisible) {
+            return@setOnClickListener
+         }
+         setFragment(popularFragment, POPULAR_FRAGMENT_TAG)
       }
 
       favouriteFragmentButton.setOnClickListener {
-         setFragment(favouriteFragment)
+         setFragment(favouriteFragment, FAVOURITE_FRAGMENT_TAG)
       }
    }
 

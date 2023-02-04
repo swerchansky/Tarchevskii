@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import swerchansky.films.ConstantValues.FILM_LIST_READY
+import swerchansky.films.ConstantValues.NETWORK_FAILURE
 import swerchansky.service.entity.FilmDetailsEntity
 import swerchansky.service.entity.FilmEntity
 import swerchansky.service.network.NetworkHelper
@@ -29,19 +30,31 @@ class FilmService : Service() {
       scope.launch {
          withContext(Dispatchers.IO) {
             repeat(5) {
-               //TODO: add error handling
                val result = kotlin.runCatching {
                   networkHelper.getTopFilms(it + 1).execute()
-                     .body()?.films?.let { filmList -> films.addAll(filmList) }
+                     .body()?.films?.let { filmList -> films += filmList }
+               }
+               if (result.isFailure) {
+                  sendIntent(NETWORK_FAILURE)
+                  return@withContext
                }
             }
             for (i in films.indices) {
+               val (filmPoster, filmPosterCode) =
+                  try {
+                     networkHelper.getPreviewImage(films[i].posterUrlPreview)
+                  } catch (e: Exception) {
+                     sendIntent(NETWORK_FAILURE)
+                     return@withContext
+                  }
+               if (filmPosterCode != 200) {
+                  sendIntent(NETWORK_FAILURE)
+                  return@withContext
+               }
                films[i].posterImagePreview =
-                  networkHelper.getPreviewImage(films[i].posterUrlPreview)
+                  filmPoster
             }
-            val intent = Intent(TAG)
-            intent.putExtra("type", FILM_LIST_READY)
-            LocalBroadcastManager.getInstance(this@FilmService).sendBroadcast(intent)
+            sendIntent(FILM_LIST_READY)
          }
       }
    }
@@ -64,8 +77,26 @@ class FilmService : Service() {
       super.onDestroy()
    }
 
-   fun getFilmDetails(position: Int): FilmDetailsEntity {
-      return networkHelper.getFilmDetails(films[position].filmId)
+   fun getFilmDetails(position: Int): FilmDetailsEntity? {
+      val (filmDetails, filmDetailsCode, filmPosterCode) =
+         try {
+            networkHelper.getFilmDetails(films[position].filmId)
+         } catch (e: Exception) {
+            sendIntent(NETWORK_FAILURE)
+            return null
+         }
+      if (filmDetailsCode != 200 && filmPosterCode != 200) {
+         sendIntent(NETWORK_FAILURE)
+         return null
+      }
+      return filmDetails
+   }
+
+   private fun sendIntent(type: Int, text: String = "") {
+      val intent = Intent(TAG)
+      intent.putExtra("type", type)
+      intent.putExtra("text", text)
+      LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
    }
 
 }

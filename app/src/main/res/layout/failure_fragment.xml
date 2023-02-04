@@ -42,43 +42,48 @@
 
     </LinearLayout>
 
-    <com.facebook.shimmer.ShimmerFrameLayout
-        android:id="@+id/shimmerLayout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginBottom="10dp"
+    <ImageView
+        android:id="@+id/noConnectionIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="200dp"
+        android:contentDescription="@string/noConnection"
+        android:src="@drawable/no_connection"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <include layout="@layout/shimmer" />
-
-            <include layout="@layout/shimmer" />
-
-            <include layout="@layout/shimmer" />
-
-            <include layout="@layout/shimmer" />
-
-            <include layout="@layout/shimmer" />
-
-            <include layout="@layout/shimmer" />
-
-        </LinearLayout>
-    </com.facebook.shimmer.ShimmerFrameLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/popularList"
+    <TextView
+        android:id="@+id/noConnectionText"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title" />
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="40dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/noConnectionText"
+        android:textAlignment="center"
+        android:textColor="@color/light_blue_teal"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/noConnectionIcon" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/popularButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/inactive_button_background"
+        android:stateListAnimator="@null"
+        android:text="@string/retry"
+        android:textAllCaps="false"
+        android:textColor="@color/light_blue_white"
+        android:textSize="18sp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/noConnectionText" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

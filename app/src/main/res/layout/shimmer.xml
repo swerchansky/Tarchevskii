@@ -8,10 +8,10 @@
         android:id="@+id/filmCard"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp">
 
@@ -22,16 +22,15 @@
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/filmPoster"
-                android:layout_width="60dp"
+                android:layout_width="50dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="18dp"
                 android:layout_marginTop="18dp"
                 android:layout_marginEnd="18dp"
                 android:layout_marginBottom="18dp"
                 android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
 
-                android:src="@drawable/film_poster_example"
+                android:background="@color/shimmer"
                 app:shapeAppearanceOverlay="@style/RoundedCornersImage" />
 
             <LinearLayout
@@ -46,23 +45,15 @@
                     android:layout_height="24dp"
                     android:layout_marginTop="32dp"
                     android:layout_marginEnd="40dp"
-                    android:singleLine="true"
-                    android:text="@string/filmNameExample"
-                    android:textColor="@color/film_name"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:background="@color/shimmer" />
 
                 <TextView
                     android:id="@+id/filmAdditional"
                     android:layout_width="match_parent"
                     android:layout_height="24dp"
                     android:layout_marginTop="7dp"
-                    android:layout_marginEnd="40dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:singleLine="true"
-                    android:text="@string/film_additional_example"
-                    android:textColor="@color/film_additional"
-                    android:textSize="15sp" />
+                    android:layout_marginEnd="150dp"
+                    android:background="@color/shimmer" />
 
 
             </LinearLayout>

@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.facebook.shimmer.ShimmerFrameLayout
 import swerchansky.films.ConstantValues.FILM_LIST_READY
 import swerchansky.films.recyclers.TopFilmsAdapter
 
@@ -22,12 +23,15 @@ class PopularFragment : Fragment() {
    }
 
    private lateinit var recycler: RecyclerView
+   private lateinit var shimmer: ShimmerFrameLayout
 
    private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
       override fun onReceive(context: Context?, intent: Intent) {
          when (intent.getIntExtra("type", -1)) {
             FILM_LIST_READY -> {
                recycler.apply {
+                  shimmer.stopShimmer()
+                  shimmer.visibility = View.GONE
                   layoutManager = LinearLayoutManager(requireContext())
                   adapter =
                      TopFilmsAdapter(
@@ -51,13 +55,22 @@ class PopularFragment : Fragment() {
    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
       super.onViewCreated(view, savedInstanceState)
       recycler = view.findViewById(R.id.popularList)
-      (activity as MainActivity).filmService?.let {
+
+      shimmer = view.findViewById(R.id.shimmerLayout)
+
+      if ((activity as MainActivity).filmsListReady) {
+         shimmer.stopShimmer()
+         shimmer.visibility = View.GONE
          recycler.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter =
-               TopFilmsAdapter(requireActivity(), (activity as MainActivity).filmService!!.films)
+               TopFilmsAdapter(
+                  requireActivity(),
+                  (activity as MainActivity).filmService!!.films
+               )
          }
       }
+
       LocalBroadcastManager.getInstance(requireContext())
          .registerReceiver(messageReceiver, IntentFilter(FILM_SERVICE_TAG))
    }

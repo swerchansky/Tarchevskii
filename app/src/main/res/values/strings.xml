@@ -16,4 +16,7 @@
     <string name="findDescription">поиск</string>
     <string name="film_additional">%1$s(%2$s)</string>
     <string name="unknown">Неизвестно</string>
+    <string name="noConnection">Нет соединения</string>
+    <string name="noConnectionText">Произошла ошибка при загрузке данных, проверьте подключение к сети</string>
+    <string name="retry">Повторить</string>
 </resources>

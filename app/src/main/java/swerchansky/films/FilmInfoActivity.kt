@@ -38,16 +38,21 @@ class FilmInfoActivity : AppCompatActivity() {
                val filmDetails = withContext(Dispatchers.IO) {
                   filmService!!.getFilmDetails(position)
                }
-               withContext(Dispatchers.Main) {
-                  filmPoster.setImageBitmap(filmDetails.filmPoster)
-                  fullFilmName.text = filmDetails.nameRu
-                  filmDescription.text = filmDetails.description
-                  filmYear.text =
-                     filmDetails.year ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
-                  filmGenres.text = filmDetails.genres?.joinToString(", ") { it.genre }
-                     ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
-                  filmCountries.text = filmDetails.countries?.joinToString(", ") { it.country }
-                     ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
+               if (filmDetails != null) {
+                  withContext(Dispatchers.Main) {
+                     filmPoster.setImageBitmap(filmDetails.filmPoster)
+                     fullFilmName.text = filmDetails.nameRu
+                     filmDescription.text = filmDetails.description
+                     filmYear.text =
+                        filmDetails.year
+                           ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
+                     filmGenres.text = filmDetails.genres?.joinToString(", ") { it.genre }
+                        ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
+                     filmCountries.text = filmDetails.countries?.joinToString(", ") { it.country }
+                        ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
+                  }
+               } else {
+                  finish()
                }
             }
          }
@@ -75,7 +80,7 @@ class FilmInfoActivity : AppCompatActivity() {
       bindService(filmServiceIntent, boundServiceConnection, BIND_AUTO_CREATE)
    }
 
-   fun initViews() {
+   private fun initViews() {
       filmPoster = findViewById(R.id.filmPoster)
       fullFilmName = findViewById(R.id.fullFilmName)
       filmDescription = findViewById(R.id.filmDescription)
