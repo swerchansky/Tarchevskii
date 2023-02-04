@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">films</string>
+    <string name="filmNameExample">Первому игроку приготовиться</string>
+    <string name="film_additional_example">Фантастика(2018)</string>
+    <string name="popular_page_title">Популярные</string>
+    <string name="favourite_page_title">Избранное</string>
+    <string name="filmDescriptionExample">Действие фильма происходит в 2045 году, мир погружается в хаос и находится на грани коллапса. Люди ищут спасения в игре OASIS – огромной вселенной виртуальной реальности.</string>
+    <string name="filmYearExample">2018</string>
+    <string name="filmYearTitle">Год выпуска:</string>
+    <string name="filmGenresTitle">Жанры:</string>
+    <string name="filmGenresExample">фантастика, приключения, боевик</string>
+    <string name="filmCountiesTitle">Страны:</string>
+    <string name="filmCountiesExample">США, Индия</string>
+    <string name="poster_description">Постер к фильму</string>
+    <string name="backArrow_description">возвращение назад</string>
+    <string name="findDescription">поиск</string>
 </resources>

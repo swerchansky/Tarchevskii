@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <ImageView
+                android:id="@+id/filmPoster"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/poster_description"
+                android:scaleType="centerCrop"
+                android:src="@drawable/film_poster_example"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="-16dp" />
+
+            <TextView
+                android:id="@+id/fullFilmName"
+                style="@style/FilmName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/filmNameExample"
+                app:layout_constraintTop_toBottomOf="@id/filmPoster" />
+
+            <TextView
+                android:id="@+id/filmDescription"
+                style="@style/FilmDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:text="@string/filmDescriptionExample"
+                app:layout_constraintTop_toBottomOf="@+id/fullFilmName" />
+
+            <TextView
+                android:id="@+id/filmYearTitle"
+                style="@style/FilmAdditionalTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filmYearTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/filmDescription" />
+
+            <TextView
+                android:id="@+id/filmYear"
+                style="@style/FilmAdditional"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/filmYearExample"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/filmYearTitle"
+                app:layout_constraintTop_toBottomOf="@id/filmDescription" />
+
+            <TextView
+                android:id="@+id/filmGenresTitle"
+                style="@style/FilmAdditionalTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filmGenresTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/filmYear" />
+
+            <TextView
+                android:id="@+id/filmGenres"
+                style="@style/FilmAdditional"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/filmGenresExample"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/filmGenresTitle"
+                app:layout_constraintTop_toBottomOf="@id/filmYear" />
+
+            <TextView
+                android:id="@+id/filmCountriesTitle"
+                style="@style/FilmAdditionalTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filmCountiesTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/filmGenres" />
+
+            <TextView
+                android:id="@+id/filmCountries"
+                style="@style/FilmAdditional"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingBottom="45dp"
+                android:text="@string/filmCountiesExample"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/filmCountriesTitle"
+                app:layout_constraintTop_toBottomOf="@id/filmGenres" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="55dp"
+        android:background="@null"
+        android:contentDescription="@string/backArrow_description"
+        android:scaleType="centerCrop"
+        android:src="@drawable/back_arrow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
