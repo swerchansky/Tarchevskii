@@ -22,7 +22,7 @@ import swerchansky.films.R
 import swerchansky.service.entity.FilmEntity
 
 
-class FavouriteFilmsAdapter(private val context: Context, private val films: List<FilmEntity>) :
+class FavouriteFilmsAdapter(private val context: Context, val films: List<FilmEntity>) :
    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
    private val scope = CoroutineScope(Dispatchers.IO)
    private val filmsDatabase by lazy {
@@ -47,14 +47,14 @@ class FavouriteFilmsAdapter(private val context: Context, private val films: Lis
       viewHolder.filmPoster.setImageBitmap(film.posterImagePreview)
       viewHolder.filmCard.setOnClickListener {
          val intent = Intent(context, FilmDetailsActivity::class.java)
-         intent.putExtra("filmPosition", position)
+         intent.putExtra("filmId", film.filmId)
          intent.putExtra("type", FILM_FAVOURITE_DETAILS)
          context.startActivity(intent)
       }
       viewHolder.filmCard.setOnLongClickListener {
          val intent = Intent(MainActivity.TAG)
          intent.putExtra("type", DELETE_FAVOURITE_FILM)
-         intent.putExtra("position", position)
+         intent.putExtra("filmId", film.filmId)
          LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
          return@setOnLongClickListener true
       }

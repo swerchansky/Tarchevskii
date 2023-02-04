@@ -21,4 +21,5 @@
     <string name="retry">Повторить</string>
     <string name="addedToFavourites">Фильм добавлен в избранное</string>
     <string name="deletedFromFavourites">Фильм удален из избранного</string>
+    <string name="search">Поиск</string>
 </resources>

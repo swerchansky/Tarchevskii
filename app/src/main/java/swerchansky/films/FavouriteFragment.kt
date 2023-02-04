@@ -11,12 +11,14 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
 import swerchansky.films.ConstantValues.FAVOURITE_FILM_DELETED
+import swerchansky.films.ConstantValues.FAVOURITE_SEARCH
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_LIST_READY
 import swerchansky.films.recyclers.FavouriteFilmsAdapter
 
@@ -27,6 +29,7 @@ class FavouriteFragment : Fragment() {
    }
 
    private lateinit var recycler: RecyclerView
+   private lateinit var searchButton: ImageButton
    private lateinit var shimmer: ShimmerFrameLayout
 
    private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -46,9 +49,11 @@ class FavouriteFragment : Fragment() {
                }
             }
             FAVOURITE_FILM_DELETED -> {
-               val position = intent.getStringExtra("text")!!.toInt()
+               val filmId = intent.getStringExtra("text")!!.toInt()
+               val position =
+                  (activity as MainActivity).filmService!!.favouritesFilms.indexOfFirst { it.filmId == filmId }
                (activity as MainActivity).filmService!!.favouritesFilms.removeAt(position)
-               recycler.adapter?.notifyItemRemoved(intent.getStringExtra("text")!!.toInt())
+               recycler.adapter?.notifyItemRemoved(position)
                Handler(Looper.getMainLooper()).postDelayed({
                   recycler.adapter?.notifyDataSetChanged()
                }, 300)
@@ -69,7 +74,14 @@ class FavouriteFragment : Fragment() {
       super.onViewCreated(view, savedInstanceState)
 
       recycler = view.findViewById(R.id.favouriteList)
+      searchButton = view.findViewById(R.id.searchButton)
       shimmer = view.findViewById(R.id.shimmerLayout)
+
+      searchButton.setOnClickListener {
+         val intent = Intent(requireContext(), SearchActivity::class.java)
+         intent.putExtra("type", FAVOURITE_SEARCH)
+         requireContext().startActivity(intent)
+      }
 
       (activity as MainActivity).filmService?.getFavouritesFilms()
 

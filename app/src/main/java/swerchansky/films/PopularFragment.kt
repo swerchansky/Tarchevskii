@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_CHANGED
 import swerchansky.films.ConstantValues.FILM_TOP_LIST_READY
+import swerchansky.films.ConstantValues.POPULAR_SEARCH
 import swerchansky.films.recyclers.TopFilmsAdapter
 
 class PopularFragment : Fragment() {
@@ -24,6 +26,7 @@ class PopularFragment : Fragment() {
    }
 
    private lateinit var recycler: RecyclerView
+   private lateinit var searchButton: ImageButton
    private lateinit var shimmer: ShimmerFrameLayout
 
    private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -42,7 +45,11 @@ class PopularFragment : Fragment() {
                }
             }
             FILM_FAVOURITE_CHANGED -> {
-               recycler.adapter?.notifyItemChanged(intent.getStringExtra("text")!!.toInt())
+               recycler.adapter?.notifyItemChanged(
+                  (recycler.adapter as TopFilmsAdapter).films.indexOfFirst {
+                     it.filmId == intent.getStringExtra("text")?.toInt()
+                  }
+               )
             }
          }
       }
@@ -60,7 +67,14 @@ class PopularFragment : Fragment() {
       super.onViewCreated(view, savedInstanceState)
 
       recycler = view.findViewById(R.id.popularList)
+      searchButton = view.findViewById(R.id.searchButton)
       shimmer = view.findViewById(R.id.shimmerLayout)
+
+      searchButton.setOnClickListener {
+         val intent = Intent(requireContext(), SearchActivity::class.java)
+         intent.putExtra("type", POPULAR_SEARCH)
+         requireContext().startActivity(intent)
+      }
 
       if ((activity as MainActivity).filmsTopListReady) {
          shimmer.stopShimmer()

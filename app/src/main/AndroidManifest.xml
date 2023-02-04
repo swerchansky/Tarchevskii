@@ -20,6 +20,9 @@
             android:name=".FilmDetailsActivity"
             android:exported="false" />
         <activity
+            android:name=".SearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true">
