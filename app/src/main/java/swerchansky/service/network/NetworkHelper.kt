@@ -9,6 +9,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import swerchansky.films.ConstantValues.URL
+import swerchansky.service.entity.FilmDetailsEntity
 
 class NetworkHelper {
    private val mapper = JsonMapper
@@ -26,8 +27,17 @@ class NetworkHelper {
    fun getTopFilms(page: Int = 1) = retrofit.getTopFilms(page)
 
    fun getPreviewImage(url: String): Bitmap {
-      val response = retrofit.getPreviewImage(url).execute()
+      val response = retrofit.getImage(url).execute()
       val bytes = response.body()!!.bytes()
       return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+   }
+
+   fun getFilmDetails(id: Int): FilmDetailsEntity {
+      val response = retrofit.getFilmDetails(id).execute()
+      val filmDetails = response.body()!!
+      val imageResponse = retrofit.getImage(filmDetails.posterUrl).execute()
+      val bytes = imageResponse.body()!!.bytes()
+      filmDetails.filmPoster = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+      return filmDetails
    }
 }

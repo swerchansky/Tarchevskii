@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import swerchansky.films.ConstantValues.FILM_LIST_READY
+import swerchansky.service.entity.FilmDetailsEntity
 import swerchansky.service.entity.FilmEntity
 import swerchansky.service.network.NetworkHelper
 
@@ -61,6 +62,10 @@ class FilmService : Service() {
 
    override fun onDestroy() {
       super.onDestroy()
+   }
+
+   fun getFilmDetails(position: Int): FilmDetailsEntity {
+      return networkHelper.getFilmDetails(films[position].filmId)
    }
 
 }
