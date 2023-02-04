@@ -78,6 +78,7 @@ class FavouriteFragment : Fragment() {
       shimmer = view.findViewById(R.id.shimmerLayout)
 
       searchButton.setOnClickListener {
+         if (!(activity as MainActivity).filmsTopListReady) return@setOnClickListener
          val intent = Intent(requireContext(), SearchActivity::class.java)
          intent.putExtra("type", FAVOURITE_SEARCH)
          requireContext().startActivity(intent)

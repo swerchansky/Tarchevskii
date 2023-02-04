@@ -22,4 +22,5 @@
     <string name="addedToFavourites">Фильм добавлен в избранное</string>
     <string name="deletedFromFavourites">Фильм удален из избранного</string>
     <string name="search">Поиск</string>
+    <string name="notFound">Не найдено</string>
 </resources>

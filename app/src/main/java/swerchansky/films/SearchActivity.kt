@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.widget.addTextChangedListener
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +37,7 @@ class SearchActivity : AppCompatActivity() {
    private lateinit var recycler: RecyclerView
    private lateinit var shimmer: ShimmerFrameLayout
    private lateinit var backArrow: ImageButton
+   private lateinit var notFoundButton: AppCompatButton
    private lateinit var filmServiceIntent: Intent
 
    private var isBound = false
@@ -103,6 +105,10 @@ class SearchActivity : AppCompatActivity() {
       recycler = findViewById(R.id.searchList)
       shimmer = findViewById(R.id.shimmerLayout)
       backArrow = findViewById(R.id.backArrow)
+      notFoundButton = findViewById(R.id.notFoundButton)
+
+      shimmer.stopShimmer()
+      shimmer.visibility = View.GONE
 
       backArrow.setOnClickListener {
          finish()
@@ -125,6 +131,12 @@ class SearchActivity : AppCompatActivity() {
             }
             shimmer.stopShimmer()
             shimmer.visibility = View.GONE
+         }
+         if (filteredFilmList.isEmpty() or searchText.text.isEmpty()) {
+            notFoundButton.visibility = View.VISIBLE
+            recycler.adapter = null
+         } else {
+            notFoundButton.visibility = View.GONE
          }
       }
 
