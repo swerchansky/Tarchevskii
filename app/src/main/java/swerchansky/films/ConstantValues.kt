@@ -16,4 +16,6 @@ object ConstantValues {
    const val FILM_TOP_DETAILS = 7
    const val DELETE_FAVOURITE_FILM = 8
    const val FAVOURITE_FILM_DELETED = 9
+   const val POPULAR_SEARCH = 10
+   const val FAVOURITE_SEARCH = 11
 }

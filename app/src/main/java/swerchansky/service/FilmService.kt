@@ -52,7 +52,7 @@ class FilmService : Service() {
             SAVE_OR_DELETE_FAVOURITE_FILM -> {
                addOrDeleteFavouriteFilm(
                   intent.getIntExtra(
-                     "position", -1
+                     "filmId", -1
                   )
                )
             }
@@ -60,14 +60,13 @@ class FilmService : Service() {
                scope.launch {
                   withContext(Dispatchers.IO) {
                      deleteFavouriteFilm(
-                        favouritesFilms,
                         intent.getIntExtra(
-                           "position", -1
+                           "filmId", -1
                         )
                      )
                      sendIntent(
                         FAVOURITE_FILM_DELETED,
-                        intent.getIntExtra("position", -1).toString()
+                        intent.getIntExtra("filmId", -1).toString()
                      )
                   }
                }
@@ -103,10 +102,10 @@ class FilmService : Service() {
       LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver)
    }
 
-   fun getFilmTopDetails(position: Int): FilmDetailsEntity? {
+   fun getFilmTopDetails(filmId: Int): FilmDetailsEntity? {
       val (filmDetails, filmDetailsCode, filmPosterCode) =
          try {
-            networkHelper.getFilmDetails(topFilms[position].filmId)
+            networkHelper.getFilmDetails(filmId)
          } catch (e: Exception) {
             sendIntent(NETWORK_FAILURE)
             return null
@@ -118,8 +117,8 @@ class FilmService : Service() {
       return filmDetails
    }
 
-   fun getFilmFavouriteDetails(position: Int): FilmDetailsEntity {
-      return filmsDatabase.getFilmItemById(favouritesFilms[position].filmId.toLong())
+   fun getFilmFavouriteDetails(filmId: Int): FilmDetailsEntity {
+      return filmsDatabase.getFilmItemById(filmId.toLong())
          .toFilmDetailsEntity()
    }
 
@@ -156,21 +155,21 @@ class FilmService : Service() {
       }
    }
 
-   fun addOrDeleteFavouriteFilm(position: Int) {
+   fun addOrDeleteFavouriteFilm(filmId: Int) {
       scope.launch {
          withContext(Dispatchers.IO) {
-            if (filmsDatabase.isFilmIsExist(topFilms[position].filmId.toLong())) {
-               deleteFavouriteFilm(topFilms, position)
+            if (filmsDatabase.isFilmIsExist(filmId.toLong())) {
+               deleteFavouriteFilm(filmId)
             } else {
-               addFavouriteFilm(position)
+               addFavouriteFilm(filmId)
             }
-            sendIntent(FILM_FAVOURITE_CHANGED, position.toString())
+            sendIntent(FILM_FAVOURITE_CHANGED, filmId.toString())
          }
       }
    }
 
-   fun getFavouritesFilms() {
-      scope.launch {
+   fun getFavouritesFilms(wait: Boolean = false) {
+      val currentScope = scope.launch {
          withContext(Dispatchers.IO) {
             favouritesFilms.clear()
             filmsDatabase.getAllFilms()
@@ -178,12 +177,13 @@ class FilmService : Service() {
             sendIntent(FILM_FAVOURITE_LIST_READY)
          }
       }
+      if (wait) runBlocking { currentScope.join() }
    }
 
-   private suspend fun addFavouriteFilm(position: Int) {
+   private suspend fun addFavouriteFilm(filmId: Int) {
       val (filmDetails, filmDetailsCode, filmPosterCode) =
          try {
-            networkHelper.getFilmDetails(topFilms[position].filmId)
+            networkHelper.getFilmDetails(filmId)
          } catch (e: Exception) {
             sendIntent(NETWORK_FAILURE)
             return
@@ -203,9 +203,9 @@ class FilmService : Service() {
       }
    }
 
-   private suspend fun deleteFavouriteFilm(filmsList: MutableList<FilmEntity>, position: Int) {
-      filmsDatabase.deleteFilm(filmsList[position].filmId.toLong())
-      deleteImageFromCache(filmsList[position].filmId.toLong())
+   private suspend fun deleteFavouriteFilm(filmId: Int) {
+      filmsDatabase.deleteFilm(filmId.toLong())
+      deleteImageFromCache(filmId.toLong())
       withContext(Dispatchers.Main) {
          sendToast(
             this@FilmService.resources.getString(R.string.deletedFromFavourites),

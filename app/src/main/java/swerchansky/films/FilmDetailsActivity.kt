@@ -44,11 +44,11 @@ class FilmDetailsActivity : AppCompatActivity() {
       override fun onServiceConnected(name: ComponentName, service: IBinder) {
          val binderBridge: FilmService.MyBinder = service as FilmService.MyBinder
          filmService = binderBridge.getService()
-         val position = intent.getIntExtra("filmPosition", -1)
-         if (position != -1) {
+         val filmId = intent.getIntExtra("filmId", -1)
+         if (filmId != -1) {
             when (type) {
-               DELETE_FAVOURITE_FILM -> getFilmTopDetails(position)
-               FILM_FAVOURITE_DETAILS -> getFilmFavouriteDetails(position)
+               DELETE_FAVOURITE_FILM -> getFilmTopDetails(filmId)
+               FILM_FAVOURITE_DETAILS -> getFilmFavouriteDetails(filmId)
             }
          }
          isBound = true
@@ -82,10 +82,10 @@ class FilmDetailsActivity : AppCompatActivity() {
       bindService(filmServiceIntent, boundServiceConnection, BIND_AUTO_CREATE)
    }
 
-   private fun getFilmFavouriteDetails(position: Int) {
+   private fun getFilmFavouriteDetails(filmId: Int) {
       scope.launch {
          val filmDetails = withContext(Dispatchers.IO) {
-            filmService!!.getFilmFavouriteDetails(position)
+            filmService!!.getFilmFavouriteDetails(filmId)
          }
          withContext(Dispatchers.Main) {
             fillFilmDetails(filmDetails)
@@ -93,10 +93,10 @@ class FilmDetailsActivity : AppCompatActivity() {
       }
    }
 
-   private fun getFilmTopDetails(position: Int) {
+   private fun getFilmTopDetails(filmId: Int) {
       scope.launch {
          val filmDetails = withContext(Dispatchers.IO) {
-            filmService!!.getFilmTopDetails(position)
+            filmService!!.getFilmTopDetails(filmId)
          }
          if (filmDetails != null) {
             withContext(Dispatchers.Main) {
