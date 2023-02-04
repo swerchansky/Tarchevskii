@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
-import swerchansky.films.FilmInfoActivity
+import swerchansky.films.FilmDetailsActivity
 import swerchansky.films.R
 import swerchansky.service.entity.FilmEntity
 
@@ -36,7 +36,7 @@ class TopFilmsAdapter(private val context: Context, private val films: List<Film
       )
       viewHolder.filmPoster.setImageBitmap(film.posterImagePreview)
       viewHolder.filmCard.setOnClickListener {
-         val intent = Intent(context, FilmInfoActivity::class.java)
+         val intent = Intent(context, FilmDetailsActivity::class.java)
          intent.putExtra("filmPosition", position)
          context.startActivity(intent)
       }

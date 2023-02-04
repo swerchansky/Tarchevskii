@@ -5,8 +5,10 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.CoroutineScope
@@ -15,7 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import swerchansky.service.FilmService
 
-class FilmInfoActivity : AppCompatActivity() {
+class FilmDetailsActivity : AppCompatActivity() {
    private lateinit var filmPoster: ImageView
    private lateinit var fullFilmName: TextView
    private lateinit var filmDescription: TextView
@@ -23,6 +25,7 @@ class FilmInfoActivity : AppCompatActivity() {
    private lateinit var filmGenres: TextView
    private lateinit var filmCountries: TextView
    private lateinit var filmServiceIntent: Intent
+   private lateinit var progressBar: ProgressBar
 
    private val scope = CoroutineScope(Dispatchers.IO)
    private var filmService: FilmService? = null
@@ -45,11 +48,13 @@ class FilmInfoActivity : AppCompatActivity() {
                      filmDescription.text = filmDetails.description
                      filmYear.text =
                         filmDetails.year
-                           ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
+                           ?: this@FilmDetailsActivity.resources.getString(R.string.unknown)
                      filmGenres.text = filmDetails.genres?.joinToString(", ") { it.genre }
-                        ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
+                        ?: this@FilmDetailsActivity.resources.getString(R.string.unknown)
                      filmCountries.text = filmDetails.countries?.joinToString(", ") { it.country }
-                        ?: this@FilmInfoActivity.resources.getString(R.string.unknown)
+                        ?: this@FilmDetailsActivity.resources.getString(R.string.unknown)
+                     progressBar.visibility = View.GONE
+                     showViews()
                   }
                } else {
                   finish()
@@ -74,6 +79,7 @@ class FilmInfoActivity : AppCompatActivity() {
       setContentView(R.layout.activity_film_details)
 
       initViews()
+      hideViews()
 
       filmServiceIntent = Intent(this, FilmService::class.java)
       startService(filmServiceIntent)
@@ -87,6 +93,25 @@ class FilmInfoActivity : AppCompatActivity() {
       filmYear = findViewById(R.id.filmYear)
       filmGenres = findViewById(R.id.filmGenres)
       filmCountries = findViewById(R.id.filmCountries)
+      progressBar = findViewById(R.id.progressBar)
+   }
+
+   private fun hideViews() {
+      filmPoster.visibility = View.GONE
+      fullFilmName.visibility = View.GONE
+      filmDescription.visibility = View.GONE
+      filmYear.visibility = View.GONE
+      filmGenres.visibility = View.GONE
+      filmCountries.visibility = View.GONE
+   }
+
+   private fun showViews() {
+      filmPoster.visibility = View.VISIBLE
+      fullFilmName.visibility = View.VISIBLE
+      filmDescription.visibility = View.VISIBLE
+      filmYear.visibility = View.VISIBLE
+      filmGenres.visibility = View.VISIBLE
+      filmCountries.visibility = View.VISIBLE
    }
 
    override fun onDestroy() {
