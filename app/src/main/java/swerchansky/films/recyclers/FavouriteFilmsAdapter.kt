@@ -14,8 +14,8 @@ import com.google.android.material.imageview.ShapeableImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import swerchansky.database.FilmsDatabase
+import swerchansky.films.ConstantValues.DELETE_FAVOURITE_FILM
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_DETAILS
-import swerchansky.films.ConstantValues.SAVE_FILM
 import swerchansky.films.FilmDetailsActivity
 import swerchansky.films.MainActivity
 import swerchansky.films.R
@@ -53,7 +53,7 @@ class FavouriteFilmsAdapter(private val context: Context, private val films: Lis
       }
       viewHolder.filmCard.setOnLongClickListener {
          val intent = Intent(MainActivity.TAG)
-         intent.putExtra("type", SAVE_FILM)
+         intent.putExtra("type", DELETE_FAVOURITE_FILM)
          intent.putExtra("position", position)
          LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
          return@setOnLongClickListener true

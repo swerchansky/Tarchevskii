@@ -16,8 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import swerchansky.database.FilmsDatabase
-import swerchansky.films.ConstantValues.FILM_TOP_DETAILS
-import swerchansky.films.ConstantValues.SAVE_FILM
+import swerchansky.films.ConstantValues.DELETE_FAVOURITE_FILM
+import swerchansky.films.ConstantValues.SAVE_OR_DELETE_FAVOURITE_FILM
 import swerchansky.films.FilmDetailsActivity
 import swerchansky.films.MainActivity
 import swerchansky.films.R
@@ -50,12 +50,12 @@ class TopFilmsAdapter(private val context: Context, private val films: List<Film
       viewHolder.filmCard.setOnClickListener {
          val intent = Intent(context, FilmDetailsActivity::class.java)
          intent.putExtra("filmPosition", position)
-         intent.putExtra("type", FILM_TOP_DETAILS)
+         intent.putExtra("type", DELETE_FAVOURITE_FILM)
          context.startActivity(intent)
       }
       viewHolder.filmCard.setOnLongClickListener {
          val intent = Intent(MainActivity.TAG)
-         intent.putExtra("type", SAVE_FILM)
+         intent.putExtra("type", SAVE_OR_DELETE_FAVOURITE_FILM)
          intent.putExtra("position", position)
          LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
          return@setOnLongClickListener true

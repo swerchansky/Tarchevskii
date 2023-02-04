@@ -1,10 +1,13 @@
 package swerchansky.films
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
+import swerchansky.films.ConstantValues.FAVOURITE_FILM_DELETED
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_LIST_READY
 import swerchansky.films.recyclers.FavouriteFilmsAdapter
 
@@ -26,6 +30,7 @@ class FavouriteFragment : Fragment() {
    private lateinit var shimmer: ShimmerFrameLayout
 
    private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+      @SuppressLint("NotifyDataSetChanged")
       override fun onReceive(context: Context?, intent: Intent) {
          when (intent.getIntExtra("type", -1)) {
             FILM_FAVOURITE_LIST_READY -> {
@@ -39,6 +44,14 @@ class FavouriteFragment : Fragment() {
                         (activity as MainActivity).filmService!!.favouritesFilms
                      )
                }
+            }
+            FAVOURITE_FILM_DELETED -> {
+               val position = intent.getStringExtra("text")!!.toInt()
+               (activity as MainActivity).filmService!!.favouritesFilms.removeAt(position)
+               recycler.adapter?.notifyItemRemoved(intent.getStringExtra("text")!!.toInt())
+               Handler(Looper.getMainLooper()).postDelayed({
+                  recycler.adapter?.notifyDataSetChanged()
+               }, 300)
             }
          }
       }

@@ -16,8 +16,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import swerchansky.films.ConstantValues.DELETE_FAVOURITE_FILM
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_DETAILS
-import swerchansky.films.ConstantValues.FILM_TOP_DETAILS
 import swerchansky.service.FilmService
 import swerchansky.service.entity.FilmDetailsEntity
 
@@ -47,7 +47,7 @@ class FilmDetailsActivity : AppCompatActivity() {
          val position = intent.getIntExtra("filmPosition", -1)
          if (position != -1) {
             when (type) {
-               FILM_TOP_DETAILS -> getFilmTopDetails(position)
+               DELETE_FAVOURITE_FILM -> getFilmTopDetails(position)
                FILM_FAVOURITE_DETAILS -> getFilmFavouriteDetails(position)
             }
          }

@@ -15,11 +15,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.*
 import swerchansky.database.FilmDBEntity
 import swerchansky.database.FilmsDatabase
+import swerchansky.films.ConstantValues.DELETE_FAVOURITE_FILM
+import swerchansky.films.ConstantValues.FAVOURITE_FILM_DELETED
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_CHANGED
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_LIST_READY
 import swerchansky.films.ConstantValues.FILM_TOP_LIST_READY
 import swerchansky.films.ConstantValues.NETWORK_FAILURE
-import swerchansky.films.ConstantValues.SAVE_FILM
+import swerchansky.films.ConstantValues.SAVE_OR_DELETE_FAVOURITE_FILM
 import swerchansky.films.R
 import swerchansky.service.entity.CountryEntity
 import swerchansky.service.entity.FilmDetailsEntity
@@ -47,12 +49,28 @@ class FilmService : Service() {
    private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
       override fun onReceive(context: Context?, intent: Intent) {
          when (intent.getIntExtra("type", -1)) {
-            SAVE_FILM -> {
+            SAVE_OR_DELETE_FAVOURITE_FILM -> {
                addOrDeleteFavouriteFilm(
                   intent.getIntExtra(
                      "position", -1
                   )
                )
+            }
+            DELETE_FAVOURITE_FILM -> {
+               scope.launch {
+                  withContext(Dispatchers.IO) {
+                     deleteFavouriteFilm(
+                        favouritesFilms,
+                        intent.getIntExtra(
+                           "position", -1
+                        )
+                     )
+                     sendIntent(
+                        FAVOURITE_FILM_DELETED,
+                        intent.getIntExtra("position", -1).toString()
+                     )
+                  }
+               }
             }
          }
       }
@@ -142,35 +160,9 @@ class FilmService : Service() {
       scope.launch {
          withContext(Dispatchers.IO) {
             if (filmsDatabase.isFilmIsExist(topFilms[position].filmId.toLong())) {
-               filmsDatabase.deleteFilm(topFilms[position].filmId.toLong())
-               deleteImageFromCache(topFilms[position].filmId.toLong())
-               withContext(Dispatchers.Main) {
-                  sendToast(
-                     this@FilmService.resources.getString(R.string.deletedFromFavourites),
-                     this@FilmService
-                  )
-               }
+               deleteFavouriteFilm(topFilms, position)
             } else {
-               val (filmDetails, filmDetailsCode, filmPosterCode) =
-                  try {
-                     networkHelper.getFilmDetails(topFilms[position].filmId)
-                  } catch (e: Exception) {
-                     sendIntent(NETWORK_FAILURE)
-                     return@withContext
-                  }
-               if (filmDetailsCode != 200 && filmPosterCode != 200 && filmDetails == null) {
-                  sendIntent(NETWORK_FAILURE)
-                  return@withContext
-               }
-
-               filmsDatabase.insertFilm(filmDetails!!.toFilmDBEntity())
-               writeImageToCache(filmDetails.filmPoster, filmDetails.kinopoiskId)
-               withContext(Dispatchers.Main) {
-                  sendToast(
-                     this@FilmService.resources.getString(R.string.addedToFavourites),
-                     this@FilmService
-                  )
-               }
+               addFavouriteFilm(position)
             }
             sendIntent(FILM_FAVOURITE_CHANGED, position.toString())
          }
@@ -185,6 +177,40 @@ class FilmService : Service() {
                .let { it.forEach { film -> favouritesFilms += film.toFilmEntity() } }
             sendIntent(FILM_FAVOURITE_LIST_READY)
          }
+      }
+   }
+
+   private suspend fun addFavouriteFilm(position: Int) {
+      val (filmDetails, filmDetailsCode, filmPosterCode) =
+         try {
+            networkHelper.getFilmDetails(topFilms[position].filmId)
+         } catch (e: Exception) {
+            sendIntent(NETWORK_FAILURE)
+            return
+         }
+      if (filmDetailsCode != 200 && filmPosterCode != 200 && filmDetails == null) {
+         sendIntent(NETWORK_FAILURE)
+         return
+      }
+
+      filmsDatabase.insertFilm(filmDetails!!.toFilmDBEntity())
+      writeImageToCache(filmDetails.filmPoster, filmDetails.kinopoiskId)
+      withContext(Dispatchers.Main) {
+         sendToast(
+            this@FilmService.resources.getString(R.string.addedToFavourites),
+            this@FilmService
+         )
+      }
+   }
+
+   private suspend fun deleteFavouriteFilm(filmsList: MutableList<FilmEntity>, position: Int) {
+      filmsDatabase.deleteFilm(filmsList[position].filmId.toLong())
+      deleteImageFromCache(filmsList[position].filmId.toLong())
+      withContext(Dispatchers.Main) {
+         sendToast(
+            this@FilmService.resources.getString(R.string.deletedFromFavourites),
+            this@FilmService
+         )
       }
    }
 
