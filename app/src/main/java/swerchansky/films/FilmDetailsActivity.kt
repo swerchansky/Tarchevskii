@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import android.view.WindowManager
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -26,6 +27,7 @@ class FilmDetailsActivity : AppCompatActivity() {
    private lateinit var filmCountries: TextView
    private lateinit var filmServiceIntent: Intent
    private lateinit var progressBar: ProgressBar
+   private lateinit var backArrow: ImageButton
 
    private val scope = CoroutineScope(Dispatchers.IO)
    private var filmService: FilmService? = null
@@ -81,6 +83,10 @@ class FilmDetailsActivity : AppCompatActivity() {
       initViews()
       hideViews()
 
+      backArrow.setOnClickListener {
+         finish()
+      }
+
       filmServiceIntent = Intent(this, FilmService::class.java)
       startService(filmServiceIntent)
       bindService(filmServiceIntent, boundServiceConnection, BIND_AUTO_CREATE)
@@ -94,6 +100,7 @@ class FilmDetailsActivity : AppCompatActivity() {
       filmGenres = findViewById(R.id.filmGenres)
       filmCountries = findViewById(R.id.filmCountries)
       progressBar = findViewById(R.id.progressBar)
+      backArrow = findViewById(R.id.backArrow)
    }
 
    private fun hideViews() {
