@@ -14,4 +14,5 @@
     <string name="poster_description">Постер к фильму</string>
     <string name="backArrow_description">возвращение назад</string>
     <string name="findDescription">поиск</string>
+    <string name="film_additional">%1$s(%2$s)</string>
 </resources>

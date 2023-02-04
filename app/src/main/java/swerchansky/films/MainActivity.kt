@@ -14,7 +14,7 @@ import swerchansky.service.FilmService
 class MainActivity : AppCompatActivity() {
    companion object {
       const val TAG = "MainActivity"
-      const val MESSAGE_SERVICE_TAG = "FilmService"
+      const val FILM_SERVICE_TAG = "FilmService"
    }
 
    private lateinit var popularFragmentButton: Button
@@ -22,8 +22,8 @@ class MainActivity : AppCompatActivity() {
    private lateinit var filmServiceIntent: Intent
    private val popularFragment = PopularFragment()
    private val favouriteFragment = FavouriteFragment()
-   private var filmService: FilmService? = null
    private var isBound = false
+   var filmService: FilmService? = null
 
    private val boundServiceConnection: ServiceConnection = object : ServiceConnection {
       override fun onServiceConnected(name: ComponentName, service: IBinder) {
