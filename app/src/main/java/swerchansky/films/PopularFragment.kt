@@ -13,7 +13,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
-import swerchansky.films.ConstantValues.FILM_LIST_READY
+import swerchansky.films.ConstantValues.FILM_FAVOURITE_CHANGED
+import swerchansky.films.ConstantValues.FILM_TOP_LIST_READY
 import swerchansky.films.recyclers.TopFilmsAdapter
 
 class PopularFragment : Fragment() {
@@ -28,17 +29,20 @@ class PopularFragment : Fragment() {
    private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
       override fun onReceive(context: Context?, intent: Intent) {
          when (intent.getIntExtra("type", -1)) {
-            FILM_LIST_READY -> {
+            FILM_TOP_LIST_READY -> {
+               shimmer.stopShimmer()
+               shimmer.visibility = View.GONE
                recycler.apply {
-                  shimmer.stopShimmer()
-                  shimmer.visibility = View.GONE
                   layoutManager = LinearLayoutManager(requireContext())
                   adapter =
                      TopFilmsAdapter(
                         requireActivity(),
-                        (activity as MainActivity).filmService!!.films
+                        (activity as MainActivity).filmService!!.topFilms
                      )
                }
+            }
+            FILM_FAVOURITE_CHANGED -> {
+               recycler.adapter?.notifyItemChanged(intent.getStringExtra("text")!!.toInt())
             }
          }
       }
@@ -54,11 +58,11 @@ class PopularFragment : Fragment() {
 
    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
       super.onViewCreated(view, savedInstanceState)
-      recycler = view.findViewById(R.id.popularList)
 
+      recycler = view.findViewById(R.id.popularList)
       shimmer = view.findViewById(R.id.shimmerLayout)
 
-      if ((activity as MainActivity).filmsListReady) {
+      if ((activity as MainActivity).filmsTopListReady) {
          shimmer.stopShimmer()
          shimmer.visibility = View.GONE
          recycler.apply {
@@ -66,7 +70,7 @@ class PopularFragment : Fragment() {
             adapter =
                TopFilmsAdapter(
                   requireActivity(),
-                  (activity as MainActivity).filmService!!.films
+                  (activity as MainActivity).filmService!!.topFilms
                )
          }
       }

@@ -7,6 +7,11 @@ object ConstantValues {
    const val POPULAR_FRAGMENT_TAG = "PopularFragment"
    const val FAVOURITE_FRAGMENT_TAG = "FavouriteFragment"
    const val FAILURE_FRAGMENT_TAG = "FailureFragment"
-   const val FILM_LIST_READY = 1
+   const val FILM_TOP_LIST_READY = 1
+   const val FILM_FAVOURITE_LIST_READY = 2
    const val NETWORK_FAILURE = 3
+   const val SAVE_FILM = 4
+   const val FILM_FAVOURITE_CHANGED = 5
+   const val FILM_FAVOURITE_DETAILS = 6
+   const val FILM_TOP_DETAILS = 7
 }

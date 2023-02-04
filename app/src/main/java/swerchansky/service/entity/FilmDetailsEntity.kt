@@ -3,11 +3,12 @@ package swerchansky.service.entity
 import android.graphics.Bitmap
 
 data class FilmDetailsEntity(
+   val kinopoiskId: Long,
    val nameRu: String,
    val posterUrl: String,
    val year: String?,
    val description: String?,
    val countries: List<CountryEntity>?,
-   val genres: List<GenreEntity>?,
+   val genres: List<GenreEntity>,
    var filmPoster: Bitmap? = null
 )

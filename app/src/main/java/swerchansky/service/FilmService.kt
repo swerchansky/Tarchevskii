@@ -1,19 +1,34 @@
 package swerchansky.service
 
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Binder
+import android.os.CountDownTimer
 import android.os.IBinder
+import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import swerchansky.films.ConstantValues.FILM_LIST_READY
+import kotlinx.coroutines.*
+import swerchansky.database.FilmDBEntity
+import swerchansky.database.FilmsDatabase
+import swerchansky.films.ConstantValues.FILM_FAVOURITE_CHANGED
+import swerchansky.films.ConstantValues.FILM_FAVOURITE_LIST_READY
+import swerchansky.films.ConstantValues.FILM_TOP_LIST_READY
 import swerchansky.films.ConstantValues.NETWORK_FAILURE
+import swerchansky.films.ConstantValues.SAVE_FILM
+import swerchansky.films.R
+import swerchansky.service.entity.CountryEntity
 import swerchansky.service.entity.FilmDetailsEntity
 import swerchansky.service.entity.FilmEntity
+import swerchansky.service.entity.GenreEntity
 import swerchansky.service.network.NetworkHelper
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 class FilmService : Service() {
    companion object {
@@ -22,12 +37,32 @@ class FilmService : Service() {
    }
 
    private val networkHelper = NetworkHelper()
-   val films = mutableListOf<FilmEntity>()
    private val scope = CoroutineScope(Dispatchers.IO)
+   private val filmsDatabase by lazy {
+      FilmsDatabase.getDatabase(this).filmsDAO()
+   }
+   val topFilms = mutableListOf<FilmEntity>()
+   val favouritesFilms = mutableListOf<FilmEntity>()
+
+   private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+      override fun onReceive(context: Context?, intent: Intent) {
+         when (intent.getIntExtra("type", -1)) {
+            SAVE_FILM -> {
+               addOrDeleteFavouriteFilm(
+                  intent.getIntExtra(
+                     "position", -1
+                  )
+               )
+            }
+         }
+      }
+   }
 
    override fun onCreate() {
       super.onCreate()
       getFilmsList()
+      LocalBroadcastManager.getInstance(this)
+         .registerReceiver(messageReceiver, IntentFilter(MAIN_ACTIVITY_TAG))
    }
 
    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
@@ -46,12 +81,14 @@ class FilmService : Service() {
 
    override fun onDestroy() {
       super.onDestroy()
+      scope.cancel()
+      LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver)
    }
 
-   fun getFilmDetails(position: Int): FilmDetailsEntity? {
+   fun getFilmTopDetails(position: Int): FilmDetailsEntity? {
       val (filmDetails, filmDetailsCode, filmPosterCode) =
          try {
-            networkHelper.getFilmDetails(films[position].filmId)
+            networkHelper.getFilmDetails(topFilms[position].filmId)
          } catch (e: Exception) {
             sendIntent(NETWORK_FAILURE)
             return null
@@ -63,23 +100,28 @@ class FilmService : Service() {
       return filmDetails
    }
 
+   fun getFilmFavouriteDetails(position: Int): FilmDetailsEntity {
+      return filmsDatabase.getFilmItemById(favouritesFilms[position].filmId.toLong())
+         .toFilmDetailsEntity()
+   }
+
    fun getFilmsList() {
       scope.launch {
          withContext(Dispatchers.IO) {
             repeat(5) {
                val result = kotlin.runCatching {
                   networkHelper.getTopFilms(it + 1).execute()
-                     .body()?.films?.let { filmList -> films += filmList }
+                     .body()?.films?.let { filmList -> topFilms += filmList }
                }
                if (result.isFailure) {
                   sendIntent(NETWORK_FAILURE)
                   return@withContext
                }
             }
-            for (i in films.indices) {
+            for (i in topFilms.indices) {
                val (filmPoster, filmPosterCode) =
                   try {
-                     networkHelper.getPreviewImage(films[i].posterUrlPreview)
+                     networkHelper.getPreviewImage(topFilms[i].posterUrlPreview)
                   } catch (e: Exception) {
                      sendIntent(NETWORK_FAILURE)
                      return@withContext
@@ -88,11 +130,98 @@ class FilmService : Service() {
                   sendIntent(NETWORK_FAILURE)
                   return@withContext
                }
-               films[i].posterImagePreview =
+               topFilms[i].posterImagePreview =
                   filmPoster
             }
-            sendIntent(FILM_LIST_READY)
+            sendIntent(FILM_TOP_LIST_READY)
          }
+      }
+   }
+
+   fun addOrDeleteFavouriteFilm(position: Int) {
+      scope.launch {
+         withContext(Dispatchers.IO) {
+            if (filmsDatabase.isFilmIsExist(topFilms[position].filmId.toLong())) {
+               filmsDatabase.deleteFilm(topFilms[position].filmId.toLong())
+               deleteImageFromCache(topFilms[position].filmId.toLong())
+               withContext(Dispatchers.Main) {
+                  sendToast(
+                     this@FilmService.resources.getString(R.string.deletedFromFavourites),
+                     this@FilmService
+                  )
+               }
+            } else {
+               val (filmDetails, filmDetailsCode, filmPosterCode) =
+                  try {
+                     networkHelper.getFilmDetails(topFilms[position].filmId)
+                  } catch (e: Exception) {
+                     sendIntent(NETWORK_FAILURE)
+                     return@withContext
+                  }
+               if (filmDetailsCode != 200 && filmPosterCode != 200 && filmDetails == null) {
+                  sendIntent(NETWORK_FAILURE)
+                  return@withContext
+               }
+
+               filmsDatabase.insertFilm(filmDetails!!.toFilmDBEntity())
+               writeImageToCache(filmDetails.filmPoster, filmDetails.kinopoiskId)
+               withContext(Dispatchers.Main) {
+                  sendToast(
+                     this@FilmService.resources.getString(R.string.addedToFavourites),
+                     this@FilmService
+                  )
+               }
+            }
+            sendIntent(FILM_FAVOURITE_CHANGED, position.toString())
+         }
+      }
+   }
+
+   fun getFavouritesFilms() {
+      scope.launch {
+         withContext(Dispatchers.IO) {
+            favouritesFilms.clear()
+            filmsDatabase.getAllFilms()
+               .let { it.forEach { film -> favouritesFilms += film.toFilmEntity() } }
+            sendIntent(FILM_FAVOURITE_LIST_READY)
+         }
+      }
+   }
+
+
+   private fun deleteImageFromCache(imageId: Long) {
+      val file =
+         File(this@FilmService.cacheDir, "$imageId.png")
+      if (file.exists()) {
+         file.delete()
+      }
+   }
+
+   private fun writeImageToCache(image: Bitmap?, imageId: Long) {
+      image ?: return
+      val file =
+         File(this@FilmService.cacheDir, "$imageId.png").also { it.createNewFile() }
+      val bos = ByteArrayOutputStream()
+      image.compress(Bitmap.CompressFormat.PNG, 0, bos)
+      val bitmapData = bos.toByteArray()
+      FileOutputStream(file).use {
+         with(it) {
+            write(bitmapData)
+            flush()
+         }
+      }
+   }
+
+   private fun getImageFromCache(imageId: Long): Bitmap? {
+      return try {
+         val file = File(cacheDir, "$imageId.png")
+         if (file.exists()) {
+            BitmapFactory.decodeFile(file.absolutePath)
+         } else {
+            null
+         }
+      } catch (e: Exception) {
+         null
       }
    }
 
@@ -103,4 +232,46 @@ class FilmService : Service() {
       LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
    }
 
+   private fun sendToast(message: String, context: Context, time: Long = 1000) {
+      val toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+      object : CountDownTimer(time, 200) {
+         override fun onTick(millisUntilFinished: Long) {
+            toast.show()
+         }
+
+         override fun onFinish() {
+            toast.cancel()
+         }
+      }.start()
+   }
+
+   private fun FilmDBEntity.toFilmEntity() = FilmEntity(
+      filmId = filmId.toInt(),
+      nameRu = nameRu,
+      year = year,
+      posterUrlPreview = "",
+      posterImagePreview = getImageFromCache(filmId),
+      genres = genres.split(":").map { GenreEntity(it) },
+   )
+
+   private fun FilmDBEntity.toFilmDetailsEntity() = FilmDetailsEntity(
+      kinopoiskId = filmId,
+      nameRu = nameRu,
+      posterUrl = posterUrl,
+      description = description,
+      year = year,
+      countries = countries?.split(":")?.map { CountryEntity(it) },
+      genres = genres.split(":").map { GenreEntity(it) },
+      filmPoster = getImageFromCache(filmId),
+   )
+
+   private fun FilmDetailsEntity.toFilmDBEntity() = FilmDBEntity(
+      filmId = kinopoiskId,
+      nameRu = nameRu,
+      posterUrl = posterUrl,
+      description = description,
+      year = year,
+      countries = countries?.joinToString(":") { it.country },
+      genres = genres.joinToString(":") { it.genre },
+   )
 }

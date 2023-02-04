@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import swerchansky.films.ConstantValues.FAILURE_FRAGMENT_TAG
 import swerchansky.films.ConstantValues.FAVOURITE_FRAGMENT_TAG
-import swerchansky.films.ConstantValues.FILM_LIST_READY
+import swerchansky.films.ConstantValues.FILM_TOP_LIST_READY
 import swerchansky.films.ConstantValues.NETWORK_FAILURE
 import swerchansky.films.ConstantValues.POPULAR_FRAGMENT_TAG
 import swerchansky.service.FilmService
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
    private val favouriteFragment = FavouriteFragment()
    private val failureFragment = FailureFragment()
    private var isBound = false
-   var filmsListReady = false
+   var filmsTopListReady = false
    var filmService: FilmService? = null
 
    private val boundServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -51,8 +51,8 @@ class MainActivity : AppCompatActivity() {
             NETWORK_FAILURE -> {
                setFragment(failureFragment, FAILURE_FRAGMENT_TAG)
             }
-            FILM_LIST_READY -> {
-               filmsListReady = true
+            FILM_TOP_LIST_READY -> {
+               filmsTopListReady = true
             }
          }
       }
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
       startService(filmServiceIntent)
       bindService(filmServiceIntent, boundServiceConnection, BIND_AUTO_CREATE)
       LocalBroadcastManager.getInstance(this)
-         .registerReceiver(messageReceiver, IntentFilter(PopularFragment.FILM_SERVICE_TAG))
+         .registerReceiver(messageReceiver, IntentFilter(FILM_SERVICE_TAG))
    }
 
    override fun onDestroy() {
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
    }
 
    fun restart() {
-      if (filmsListReady) {
+      if (filmsTopListReady) {
          setFragment(popularFragment, POPULAR_FRAGMENT_TAG)
          return
       }

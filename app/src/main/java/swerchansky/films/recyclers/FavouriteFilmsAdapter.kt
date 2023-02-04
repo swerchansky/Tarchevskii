@@ -13,10 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import swerchansky.database.FilmsDatabase
-import swerchansky.films.ConstantValues.FILM_TOP_DETAILS
+import swerchansky.films.ConstantValues.FILM_FAVOURITE_DETAILS
 import swerchansky.films.ConstantValues.SAVE_FILM
 import swerchansky.films.FilmDetailsActivity
 import swerchansky.films.MainActivity
@@ -24,7 +22,7 @@ import swerchansky.films.R
 import swerchansky.service.entity.FilmEntity
 
 
-class TopFilmsAdapter(private val context: Context, private val films: List<FilmEntity>) :
+class FavouriteFilmsAdapter(private val context: Context, private val films: List<FilmEntity>) :
    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
    private val scope = CoroutineScope(Dispatchers.IO)
    private val filmsDatabase by lazy {
@@ -50,7 +48,7 @@ class TopFilmsAdapter(private val context: Context, private val films: List<Film
       viewHolder.filmCard.setOnClickListener {
          val intent = Intent(context, FilmDetailsActivity::class.java)
          intent.putExtra("filmPosition", position)
-         intent.putExtra("type", FILM_TOP_DETAILS)
+         intent.putExtra("type", FILM_FAVOURITE_DETAILS)
          context.startActivity(intent)
       }
       viewHolder.filmCard.setOnLongClickListener {
@@ -60,15 +58,8 @@ class TopFilmsAdapter(private val context: Context, private val films: List<Film
          LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
          return@setOnLongClickListener true
       }
-      scope.launch {
-         withContext(Dispatchers.IO) {
-            if (filmsDatabase.isFilmIsExist(film.filmId.toLong())) {
-               viewHolder.filmCard.setCardBackgroundColor(context.getColor(R.color.light_blue_white))
-            } else {
-               viewHolder.filmCard.setCardBackgroundColor(context.getColor(R.color.white))
-            }
-         }
-      }
+      viewHolder.filmCard.setCardBackgroundColor(context.getColor(R.color.light_blue_white))
+
    }
 
    override fun getItemCount() = films.size

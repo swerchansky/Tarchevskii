@@ -19,4 +19,6 @@
     <string name="noConnection">Нет соединения</string>
     <string name="noConnectionText">Произошла ошибка при загрузке данных, проверьте подключение к сети</string>
     <string name="retry">Повторить</string>
+    <string name="addedToFavourites">Фильм добавлен в избранное</string>
+    <string name="deletedFromFavourites">Фильм удален из избранного</string>
 </resources>
