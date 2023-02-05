@@ -12,10 +12,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_GET_DETAILS
 import swerchansky.films.ConstantValues.FILM_TOP_GET_DETAILS
 import swerchansky.service.FilmService
@@ -165,5 +162,6 @@ class FilmDetailsActivity : AppCompatActivity() {
       if (isBound) {
          unbindService(boundServiceConnection)
       }
+      scope.cancel()
    }
 }
