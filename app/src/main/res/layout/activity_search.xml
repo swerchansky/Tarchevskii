@@ -66,17 +66,17 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
         </LinearLayout>
     </com.facebook.shimmer.ShimmerFrameLayout>
@@ -89,6 +89,23 @@
         android:layout_marginBottom="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/notFoundButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/inactive_button_background"
+        android:stateListAnimator="@null"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:text="@string/notFound"
+        android:textAllCaps="false"
+        android:textColor="@color/light_blue_white"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

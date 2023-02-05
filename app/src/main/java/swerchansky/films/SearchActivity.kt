@@ -11,15 +11,16 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.widget.addTextChangedListener
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
-import swerchansky.films.ConstantValues.FAVOURITE_FILM_DELETED
-import swerchansky.films.ConstantValues.FAVOURITE_SEARCH
+import swerchansky.films.ConstantValues.FAVOURITE_FILM_WAS_DELETED
+import swerchansky.films.ConstantValues.FAVOURITE_SEARCH_TYPE
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_CHANGED
-import swerchansky.films.ConstantValues.POPULAR_SEARCH
+import swerchansky.films.ConstantValues.POPULAR_SEARCH_TYPE
 import swerchansky.films.recyclers.FavouriteFilmsAdapter
 import swerchansky.films.recyclers.TopFilmsAdapter
 import swerchansky.service.FilmService
@@ -36,6 +37,7 @@ class SearchActivity : AppCompatActivity() {
    private lateinit var recycler: RecyclerView
    private lateinit var shimmer: ShimmerFrameLayout
    private lateinit var backArrow: ImageButton
+   private lateinit var notFoundButton: AppCompatButton
    private lateinit var filmServiceIntent: Intent
 
    private var isBound = false
@@ -54,7 +56,7 @@ class SearchActivity : AppCompatActivity() {
                   }
                )
             }
-            FAVOURITE_FILM_DELETED -> {
+            FAVOURITE_FILM_WAS_DELETED -> {
                val filmId = intent.getStringExtra("text")!!.toInt()
                val position = filteredFilmList.indexOfFirst { it.filmId == filmId }
                filteredFilmList.removeAt(position)
@@ -73,10 +75,10 @@ class SearchActivity : AppCompatActivity() {
          val binderBridge = service as FilmService.MyBinder
          filmService = binderBridge.getService()
          when (intent.getIntExtra("type", -1)) {
-            POPULAR_SEARCH -> {
+            POPULAR_SEARCH_TYPE -> {
                fullFilmList = filmService!!.topFilms.toMutableList()
             }
-            FAVOURITE_SEARCH -> {
+            FAVOURITE_SEARCH_TYPE -> {
                filmService!!.getFavouritesFilms(wait = true)
                fullFilmList = filmService!!.favouritesFilms.toMutableList()
             }
@@ -103,6 +105,10 @@ class SearchActivity : AppCompatActivity() {
       recycler = findViewById(R.id.searchList)
       shimmer = findViewById(R.id.shimmerLayout)
       backArrow = findViewById(R.id.backArrow)
+      notFoundButton = findViewById(R.id.notFoundButton)
+
+      shimmer.stopShimmer()
+      shimmer.visibility = View.GONE
 
       backArrow.setOnClickListener {
          finish()
@@ -118,13 +124,22 @@ class SearchActivity : AppCompatActivity() {
             recycler.apply {
                layoutManager = LinearLayoutManager(this@SearchActivity)
                adapter = when (intent.getIntExtra("type", -1)) {
-                  POPULAR_SEARCH -> TopFilmsAdapter(this@SearchActivity, filteredFilmList)
-                  FAVOURITE_SEARCH -> FavouriteFilmsAdapter(this@SearchActivity, filteredFilmList)
+                  POPULAR_SEARCH_TYPE -> TopFilmsAdapter(this@SearchActivity, filteredFilmList)
+                  FAVOURITE_SEARCH_TYPE -> FavouriteFilmsAdapter(
+                     this@SearchActivity,
+                     filteredFilmList
+                  )
                   else -> null
                }
             }
             shimmer.stopShimmer()
             shimmer.visibility = View.GONE
+         }
+         if (filteredFilmList.isEmpty() or searchText.text.isEmpty()) {
+            notFoundButton.visibility = View.VISIBLE
+            recycler.adapter = null
+         } else {
+            notFoundButton.visibility = View.GONE
          }
       }
 

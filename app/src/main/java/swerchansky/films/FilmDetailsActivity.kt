@@ -16,8 +16,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import swerchansky.films.ConstantValues.DELETE_FAVOURITE_FILM
-import swerchansky.films.ConstantValues.FILM_FAVOURITE_DETAILS
+import swerchansky.films.ConstantValues.FILM_FAVOURITE_GET_DETAILS
+import swerchansky.films.ConstantValues.FILM_TOP_GET_DETAILS
 import swerchansky.service.FilmService
 import swerchansky.service.entity.FilmDetailsEntity
 
@@ -47,8 +47,8 @@ class FilmDetailsActivity : AppCompatActivity() {
          val filmId = intent.getIntExtra("filmId", -1)
          if (filmId != -1) {
             when (type) {
-               DELETE_FAVOURITE_FILM -> getFilmTopDetails(filmId)
-               FILM_FAVOURITE_DETAILS -> getFilmFavouriteDetails(filmId)
+               FILM_TOP_GET_DETAILS -> getFilmTopDetails(filmId)
+               FILM_FAVOURITE_GET_DETAILS -> getFilmFavouriteDetails(filmId)
             }
          }
          isBound = true

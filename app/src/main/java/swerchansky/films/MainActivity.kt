@@ -4,8 +4,9 @@ import android.content.*
 import android.os.Bundle
 import android.os.IBinder
 import android.view.WindowManager
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import swerchansky.films.ConstantValues.FAILURE_FRAGMENT_TAG
@@ -22,8 +23,8 @@ class MainActivity : AppCompatActivity() {
       const val FILM_SERVICE_TAG = "FilmService"
    }
 
-   private lateinit var popularFragmentButton: Button
-   private lateinit var favouriteFragmentButton: Button
+   private lateinit var popularFragmentButton: AppCompatButton
+   private lateinit var favouriteFragmentButton: AppCompatButton
    private lateinit var filmServiceIntent: Intent
    private val popularFragment = PopularFragment()
    private val favouriteFragment = FavouriteFragment()
@@ -95,6 +96,20 @@ class MainActivity : AppCompatActivity() {
       setFragment(popularFragment, POPULAR_FRAGMENT_TAG)
    }
 
+   private fun inverseButtonColor(button: AppCompatButton) {
+      if (button.textColors.defaultColor == ContextCompat.getColor(
+            this,
+            R.color.light_blue_white
+         )
+      ) {
+         button.setTextColor(ContextCompat.getColor(this, R.color.light_blue_teal))
+         button.background = ContextCompat.getDrawable(this, R.drawable.active_button_background)
+      } else {
+         button.setTextColor(ContextCompat.getColor(this, R.color.light_blue_white))
+         button.background = ContextCompat.getDrawable(this, R.drawable.inactive_button_background)
+      }
+   }
+
    private fun setFragment(fragment: Fragment, fragmentTag: String) {
       val ft = supportFragmentManager.beginTransaction()
       ft.replace(R.id.fragmentView, fragment, fragmentTag)
@@ -107,13 +122,29 @@ class MainActivity : AppCompatActivity() {
       popularFragmentButton.setOnClickListener {
          val myFragment: FailureFragment? =
             supportFragmentManager.findFragmentByTag(FAILURE_FRAGMENT_TAG) as FailureFragment?
-         if (myFragment != null && myFragment.isVisible) {
+         if (myFragment?.isVisible == true) {
             return@setOnClickListener
          }
-         setFragment(popularFragment, POPULAR_FRAGMENT_TAG)
+         if (filmService?.isFilmsListJobWork() == false && !filmsTopListReady) {
+            setFragment(failureFragment, FAILURE_FRAGMENT_TAG)
+         } else {
+            if ((supportFragmentManager.findFragmentByTag(POPULAR_FRAGMENT_TAG) as PopularFragment?)
+                  ?.isVisible != true
+            ) {
+               inverseButtonColor(popularFragmentButton)
+               inverseButtonColor(favouriteFragmentButton)
+            }
+            setFragment(popularFragment, POPULAR_FRAGMENT_TAG)
+         }
       }
 
       favouriteFragmentButton.setOnClickListener {
+         if ((supportFragmentManager.findFragmentByTag(FAVOURITE_FRAGMENT_TAG) as FavouriteFragment?)
+               ?.isVisible != true
+         ) {
+            inverseButtonColor(popularFragmentButton)
+            inverseButtonColor(favouriteFragmentButton)
+         }
          setFragment(favouriteFragment, FAVOURITE_FRAGMENT_TAG)
       }
    }

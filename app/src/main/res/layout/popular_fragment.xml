@@ -57,17 +57,17 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
-            <include layout="@layout/shimmer" />
+            <include layout="@layout/shimmer_card" />
 
         </LinearLayout>
     </com.facebook.shimmer.ShimmerFrameLayout>

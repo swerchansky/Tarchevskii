@@ -17,8 +17,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
-import swerchansky.films.ConstantValues.FAVOURITE_FILM_DELETED
-import swerchansky.films.ConstantValues.FAVOURITE_SEARCH
+import swerchansky.films.ConstantValues.FAVOURITE_FILM_WAS_DELETED
+import swerchansky.films.ConstantValues.FAVOURITE_SEARCH_TYPE
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_LIST_READY
 import swerchansky.films.recyclers.FavouriteFilmsAdapter
 
@@ -48,7 +48,7 @@ class FavouriteFragment : Fragment() {
                      )
                }
             }
-            FAVOURITE_FILM_DELETED -> {
+            FAVOURITE_FILM_WAS_DELETED -> {
                val filmId = intent.getStringExtra("text")!!.toInt()
                val position =
                   (activity as MainActivity).filmService!!.favouritesFilms.indexOfFirst { it.filmId == filmId }
@@ -77,9 +77,12 @@ class FavouriteFragment : Fragment() {
       searchButton = view.findViewById(R.id.searchButton)
       shimmer = view.findViewById(R.id.shimmerLayout)
 
+      shimmer.startShimmer()
+
       searchButton.setOnClickListener {
+         if (!(activity as MainActivity).filmsTopListReady) return@setOnClickListener
          val intent = Intent(requireContext(), SearchActivity::class.java)
-         intent.putExtra("type", FAVOURITE_SEARCH)
+         intent.putExtra("type", FAVOURITE_SEARCH_TYPE)
          requireContext().startActivity(intent)
       }
 
