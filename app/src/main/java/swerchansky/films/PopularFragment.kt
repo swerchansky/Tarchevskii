@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_CHANGED
 import swerchansky.films.ConstantValues.FILM_TOP_LIST_READY
-import swerchansky.films.ConstantValues.POPULAR_SEARCH
+import swerchansky.films.ConstantValues.POPULAR_SEARCH_TYPE
 import swerchansky.films.recyclers.TopFilmsAdapter
 
 class PopularFragment : Fragment() {
@@ -72,7 +72,7 @@ class PopularFragment : Fragment() {
 
       searchButton.setOnClickListener {
          val intent = Intent(requireContext(), SearchActivity::class.java)
-         intent.putExtra("type", POPULAR_SEARCH)
+         intent.putExtra("type", POPULAR_SEARCH_TYPE)
          requireContext().startActivity(intent)
       }
 

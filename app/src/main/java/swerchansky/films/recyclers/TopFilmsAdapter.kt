@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import swerchansky.database.FilmsDatabase
-import swerchansky.films.ConstantValues.DELETE_FAVOURITE_FILM
+import swerchansky.films.ConstantValues.FILM_TOP_GET_DETAILS
 import swerchansky.films.ConstantValues.SAVE_OR_DELETE_FAVOURITE_FILM
 import swerchansky.films.FilmDetailsActivity
 import swerchansky.films.MainActivity
@@ -50,7 +50,7 @@ class TopFilmsAdapter(private val context: Context, val films: List<FilmEntity>)
       viewHolder.filmCard.setOnClickListener {
          val intent = Intent(context, FilmDetailsActivity::class.java)
          intent.putExtra("filmId", film.filmId)
-         intent.putExtra("type", DELETE_FAVOURITE_FILM)
+         intent.putExtra("type", FILM_TOP_GET_DETAILS)
          context.startActivity(intent)
       }
       viewHolder.filmCard.setOnLongClickListener {

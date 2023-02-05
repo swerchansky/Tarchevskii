@@ -17,10 +17,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
-import swerchansky.films.ConstantValues.FAVOURITE_FILM_DELETED
-import swerchansky.films.ConstantValues.FAVOURITE_SEARCH
+import swerchansky.films.ConstantValues.FAVOURITE_FILM_WAS_DELETED
+import swerchansky.films.ConstantValues.FAVOURITE_SEARCH_TYPE
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_CHANGED
-import swerchansky.films.ConstantValues.POPULAR_SEARCH
+import swerchansky.films.ConstantValues.POPULAR_SEARCH_TYPE
 import swerchansky.films.recyclers.FavouriteFilmsAdapter
 import swerchansky.films.recyclers.TopFilmsAdapter
 import swerchansky.service.FilmService
@@ -56,7 +56,7 @@ class SearchActivity : AppCompatActivity() {
                   }
                )
             }
-            FAVOURITE_FILM_DELETED -> {
+            FAVOURITE_FILM_WAS_DELETED -> {
                val filmId = intent.getStringExtra("text")!!.toInt()
                val position = filteredFilmList.indexOfFirst { it.filmId == filmId }
                filteredFilmList.removeAt(position)
@@ -75,10 +75,10 @@ class SearchActivity : AppCompatActivity() {
          val binderBridge = service as FilmService.MyBinder
          filmService = binderBridge.getService()
          when (intent.getIntExtra("type", -1)) {
-            POPULAR_SEARCH -> {
+            POPULAR_SEARCH_TYPE -> {
                fullFilmList = filmService!!.topFilms.toMutableList()
             }
-            FAVOURITE_SEARCH -> {
+            FAVOURITE_SEARCH_TYPE -> {
                filmService!!.getFavouritesFilms(wait = true)
                fullFilmList = filmService!!.favouritesFilms.toMutableList()
             }
@@ -124,8 +124,11 @@ class SearchActivity : AppCompatActivity() {
             recycler.apply {
                layoutManager = LinearLayoutManager(this@SearchActivity)
                adapter = when (intent.getIntExtra("type", -1)) {
-                  POPULAR_SEARCH -> TopFilmsAdapter(this@SearchActivity, filteredFilmList)
-                  FAVOURITE_SEARCH -> FavouriteFilmsAdapter(this@SearchActivity, filteredFilmList)
+                  POPULAR_SEARCH_TYPE -> TopFilmsAdapter(this@SearchActivity, filteredFilmList)
+                  FAVOURITE_SEARCH_TYPE -> FavouriteFilmsAdapter(
+                     this@SearchActivity,
+                     filteredFilmList
+                  )
                   else -> null
                }
             }

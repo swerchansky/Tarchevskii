@@ -15,8 +15,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.*
 import swerchansky.database.FilmDBEntity
 import swerchansky.database.FilmsDatabase
-import swerchansky.films.ConstantValues.DELETE_FAVOURITE_FILM
-import swerchansky.films.ConstantValues.FAVOURITE_FILM_DELETED
+import swerchansky.films.ConstantValues.DELETE_FAVOURITE_FILM_REQUEST
+import swerchansky.films.ConstantValues.FAVOURITE_FILM_WAS_DELETED
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_CHANGED
 import swerchansky.films.ConstantValues.FILM_FAVOURITE_LIST_READY
 import swerchansky.films.ConstantValues.FILM_TOP_LIST_READY
@@ -46,6 +46,8 @@ class FilmService : Service() {
    val topFilms = mutableListOf<FilmEntity>()
    val favouritesFilms = mutableListOf<FilmEntity>()
 
+   private var getFilmsListJob: Job? = null
+
    private val messageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
       override fun onReceive(context: Context?, intent: Intent) {
          when (intent.getIntExtra("type", -1)) {
@@ -56,7 +58,7 @@ class FilmService : Service() {
                   )
                )
             }
-            DELETE_FAVOURITE_FILM -> {
+            DELETE_FAVOURITE_FILM_REQUEST -> {
                scope.launch {
                   withContext(Dispatchers.IO) {
                      deleteFavouriteFilm(
@@ -65,7 +67,7 @@ class FilmService : Service() {
                         )
                      )
                      sendIntent(
-                        FAVOURITE_FILM_DELETED,
+                        FAVOURITE_FILM_WAS_DELETED,
                         intent.getIntExtra("filmId", -1).toString()
                      )
                   }
@@ -123,7 +125,7 @@ class FilmService : Service() {
    }
 
    fun getFilmsList() {
-      scope.launch {
+      getFilmsListJob = scope.launch {
          withContext(Dispatchers.IO) {
             repeat(5) {
                val result = kotlin.runCatching {
@@ -135,24 +137,14 @@ class FilmService : Service() {
                   return@withContext
                }
             }
-            for (i in topFilms.indices) {
-               val (filmPoster, filmPosterCode) =
-                  try {
-                     networkHelper.getPreviewImage(topFilms[i].posterUrlPreview)
-                  } catch (e: Exception) {
-                     sendIntent(NETWORK_FAILURE)
-                     return@withContext
-                  }
-               if (filmPosterCode != 200) {
-                  sendIntent(NETWORK_FAILURE)
-                  return@withContext
-               }
-               topFilms[i].posterImagePreview =
-                  filmPoster
-            }
+            if (getFilmsPreviewPosters()) return@withContext
             sendIntent(FILM_TOP_LIST_READY)
          }
       }
+   }
+
+   fun isFilmsListJobWork(): Boolean {
+      return getFilmsListJob?.isActive ?: false
    }
 
    fun addOrDeleteFavouriteFilm(filmId: Int) {
@@ -212,6 +204,25 @@ class FilmService : Service() {
             this@FilmService
          )
       }
+   }
+
+   private fun getFilmsPreviewPosters(): Boolean {
+      for (i in topFilms.indices) {
+         val (filmPoster, filmPosterCode) =
+            try {
+               networkHelper.getPreviewImage(topFilms[i].posterUrlPreview)
+            } catch (e: Exception) {
+               sendIntent(NETWORK_FAILURE)
+               return true
+            }
+         if (filmPosterCode != 200) {
+            sendIntent(NETWORK_FAILURE)
+            return true
+         }
+         topFilms[i].posterImagePreview =
+            filmPoster
+      }
+      return false
    }
 
 
