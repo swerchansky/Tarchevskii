@@ -304,7 +304,7 @@ class FilmService : Service() {
 
    private fun FilmDetailsEntity.toFilmDBEntity() = FilmDBEntity(
       filmId = kinopoiskId,
-      nameRu = nameRu,
+      nameRu = nameRu ?: "",
       posterUrl = posterUrl,
       description = description,
       year = year,

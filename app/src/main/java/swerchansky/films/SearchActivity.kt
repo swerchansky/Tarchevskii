@@ -119,7 +119,7 @@ class SearchActivity : AppCompatActivity() {
             shimmer.startShimmer()
             shimmer.visibility = View.VISIBLE
             filteredFilmList = fullFilmList.filter { film ->
-               film.nameRu.contains(searchText.text.toString(), true)
+               film.nameRu?.contains(searchText.text.toString(), true) ?: false
             }.toMutableList()
             recycler.apply {
                layoutManager = LinearLayoutManager(this@SearchActivity)

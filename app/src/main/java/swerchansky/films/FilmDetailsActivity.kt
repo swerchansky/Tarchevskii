@@ -107,7 +107,7 @@ class FilmDetailsActivity : AppCompatActivity() {
 
    private fun fillFilmDetails(filmDetails: FilmDetailsEntity) {
       filmPoster.setImageBitmap(filmDetails.filmPoster)
-      fullFilmName.text = filmDetails.nameRu
+      fullFilmName.text = filmDetails.nameRu ?: ""
       filmDescription.text = filmDetails.description
       filmYear.text =
          filmDetails.year

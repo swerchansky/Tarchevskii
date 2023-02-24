@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 
 data class FilmDetailsEntity(
    val kinopoiskId: Long,
-   val nameRu: String,
+   val nameRu: String?,
    val posterUrl: String,
    val year: String?,
    val description: String?,
